@@ -1,0 +1,12 @@
+Empass is a multi agent simulator designed for performance.
+Main features at the moment are:
+a) circular world
+b) multi agent set
+c) collision detection between agents and walls
+
+Libraries required:
+a) gnuplot-iostream
+b) libboost
+
+Compiler required:
+g++ > 4.2 with openmp support
