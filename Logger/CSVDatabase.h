@@ -79,6 +79,8 @@ template <class T> class CSVDatabase{
 
    template< class T > void CSVDatabase< T >::countSamples()
     {
+       if(!file.is_open())
+       file.open(filename.c_str(), std::ios::in);
        string line ;
        std::vector<string> lines ;
        while( getline( file, line ) ) lines.push_back( line ) ;
@@ -103,57 +105,6 @@ template <class T> class CSVDatabase{
         this->maxval=max;
     }
 
-    template< class T > void CSVDatabase< T >::readCSVhist(int col_index)
-    {
-      if(!file.is_open())
-      file.open(filename.c_str(), std::ios::in);
-      //this string contains a line of the file
-      String csvLine;
-      // read EVERY line from the stream not very efficient but useful for small files
-      int sampleindex=0;
-      while( std::getline(file, csvLine) ){
-        std::istringstream csvStream(csvLine);
-        CSVRow csvRow;
-        String csvCol;
-        // read every element from the line that is seperated by commas
-        // and put it into the vector or strings
-        int index=0;
-        while( std::getline(csvStream, csvCol, ',') )
-        {
-            if(subset==false || (subset==true && sampleindex>=lowersample && sampleindex<uppersample))
-            {
-            //trim spaces
-            remove(csvCol.begin(), csvCol.end(), ' ');
-            //then if the string contains something put it
-            if(csvCol.size()>0)
-                csvRow.push_back(csvCol);
-            if(index==col_index)
-            {
-                  float sample;
-                  if(from_string<float>(sample, csvCol, std::dec))
-                  {
-
-                    //wrap around
-                    if(sample<minval)sample=maxval+sample;
-                    //std::cout << sample << std::endl;
-                    bin->Add(sample);
-                    var->enqueueInSequence(bin->getLastBin());
-                  }
-                  else
-                  {
-                    std::cout << "from_string failed" << std::endl;
-                  }
-
-              }
-            index++;
-            }
-        }
-        db.push_back(csvRow);
-        sampleindex++;
-    }
-      file.close();
-    }
-
     template< class T > void CSVDatabase< T >::readCSV(int col_index)
     {
       if(!file.is_open())
@@ -161,26 +112,32 @@ template <class T> class CSVDatabase{
       //this string contains a line of the file
       String csvLine;
       // read EVERY line from the stream not very efficient but useful for small files
-      while( std::getline(file, csvLine) ){
-        std::istringstream csvStream(csvLine);
-        CSVRow csvRow;
-        String csvCol;
-        // read every element from the line that is seperated by commas
-        // and put it into the vector or strings
-        int index=0;
-        while( std::getline(csvStream, csvCol, ',') )
-        {
-            //trim spaces
-            remove(csvCol.begin(), csvCol.end(), ' ');
-            //then if the string contains something put it
-            if(csvCol.size()>0)
-                csvRow.push_back(csvCol);
-            if(index==col_index)
-                var->enqueueInSequence(csvCol);
-            index++;
-        }
-        db.push_back(csvRow);
-    }
+      int sampleindex=0;
+          while( std::getline(file, csvLine) ){
+            std::istringstream csvStream(csvLine);
+            CSVRow csvRow;
+            String csvCol;
+            // read every element from the line that is seperated by commas
+            // and put it into the vector or strings
+            int index=0;
+            while( std::getline(csvStream, csvCol, ',') )
+            {
+                if(subset==false || (subset==true && sampleindex>=lowersample && sampleindex<=uppersample))
+                {
+                //trim spaces
+                remove(csvCol.begin(), csvCol.end(), ' ');
+                //then if the string contains something put it
+                if(csvCol.size()>0)
+                    csvRow.push_back(csvCol);
+                if(index==col_index)
+                    var->enqueueInSequence(csvCol);
+                index++;
+                }
+            }
+            db.push_back(csvRow);
+            sampleindex++;
+         }
+      nsamples=var->getSequenceLength();
       file.close();
     }
 

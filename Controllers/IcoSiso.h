@@ -4,7 +4,7 @@
 
 #include "Filters/LowPassFilter.h"
 #include <math.h>
-
+using namespace std;
 namespace Controllers {
 
 
@@ -157,7 +157,7 @@ public:
   static float getSigmaValue (float val, float range, float saturation )
   {
       float temp=range/(1+exp(-val/(saturation/2)))-range/2;
-      if(abs(temp)>range/2) return 0;
+      if(fabs(temp)>range/2) return 0;
       else return temp;
   }
 

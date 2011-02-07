@@ -15,6 +15,7 @@
 #include <string>
 #include <set>
 #include <list>
+#include <iostream>
 
 using namespace std;
 
@@ -24,7 +25,8 @@ using std::vector;
 using std::string;
 using std::set;
 using std::list;
-
+using std::cout;
+using std::ofstream;
 
 namespace entropy {
 
@@ -46,9 +48,14 @@ public:
         void estimateProbabilities();
         void setNonZeroEvents(int N);
         void dumpGnuplotData();
+        void dumpData();
         void resetFrequencies(){f_map.clear();NZ=0;}
+        int getNonZeroEvents(){return NZ;}
         //gnuplot data structure for generating graph
         std::map<T, float> bin_data;
+        void setAlphabetSize(unsigned int size){alphabet_dim=size;}
+        unsigned int getAlphabetSize(){return alphabet_dim;}
+        T getSymbolsInSeq(unsigned int low,unsigned int up) throw(int);
 private:
 	string name;
 	bool first;
@@ -62,10 +69,16 @@ private:
         typename map<T,float>::iterator pIterator;
         std::vector< T > sequence;
         int NZ;//non zero events
+        unsigned int alphabet_dim;
 };
 
 template< class T > AleatoryVariable< T >::AleatoryVariable() {
 	this->first = true;
+        this->NZ=0;
+        this->name="X";
+        this->alphabet_dim=0;
+        this->p_map.clear();
+        this->f_map.clear();
 }
 
 template< class T >  AleatoryVariable< T >::~AleatoryVariable() {
@@ -109,6 +122,23 @@ template< class T > T AleatoryVariable< T >::getSymbolInSeq(unsigned int index) 
         }
         else {
                 return sequence[index];
+        }
+}
+
+template< class T > T AleatoryVariable< T >::getSymbolsInSeq(unsigned int low,unsigned int up) throw(int) {
+
+        //now we need to compose the sequence: it must work only for strings we should check the type
+        // but I'm lazy
+        T concat;
+        if (low<sequence.size() && low<up && up<sequence.size()) {
+                for(unsigned int k=low;k<=up;++k)
+                {
+                    concat=concat+sequence[k];
+                }
+                return concat;
+        }
+        else {
+                throw -1;
         }
 }
 
@@ -163,6 +193,27 @@ template< class T > void AleatoryVariable< T >::dumpGnuplotData() {
     }
 }
 
+template< class T > void AleatoryVariable< T >::dumpData() {
+
+    // show content:
+    cout << "P("<<this->getName()<<")"<<endl;
+    for ( pIterator=p_map.begin() ; pIterator != p_map.end(); pIterator++ )
+    {
+
+       // cout << (*pIterator).first << " => " << (*pIterator).second << endl;
+
+    }
+    cout << "F("<<this->getName()<<")"<<endl;
+    for ( fIterator=f_map.begin() ; fIterator != f_map.end(); fIterator++ )
+    {
+
+        cout << (*fIterator).first << " => " <<(*fIterator).second<< endl;
+
+    }
+    cout <<" N="<<NZ<<endl;
+
+}
+
 //! Set the number of non zero symbols that were found in the sequence
     /*!
       \param T symbol the symbol to be enqueued
@@ -214,7 +265,7 @@ template< class T > void AleatoryVariable< T >::putSymbol(T symbol) {
             this->f_map.insert(pair< T, int >(symbol, new_freq));
 
         }
-        NZ++;
+        this->NZ++;
 }
 
 template< class T > inline unsigned int AleatoryVariable< T >::getSequenceLength() const {

@@ -2,11 +2,14 @@
 #ifndef DISKAGENT_H
 #define DISKAGENT_H
 #include <World/Steppable.h>
-
 #include <World/Coordinate2D.h>
-
+#include <World/velocityvector2d.h>
+#include <Controllers/IcoSiso.h>
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/io.hpp>
 using namespace std;
-
+using namespace boost::numeric::ublas;
+using namespace Controllers;
 /**
   * class DiskAgent
   * An embodied agent with a disk shape, mass and diameter and yes antennas and
@@ -45,25 +48,20 @@ public:
 
 
   /**
-   * Update the agent position
+   * Update the agent position no collision
    */
-  void updatePosition (bool isCollision )
-  {
-      //agent reaction to a collision
-      if(isCollision)
-      {
-      // it needs to compute a perfect reflection
-      //this->orientation= this->orientation-2*atan2(position->y,position->x)-M_PI/2;
-      this->orientation= this->orientation-2*atan2(position->y,position->x)-M_PI;
-      //this->orientation= 2*atan2(position->y,position->x)-this->orientation;
-      //do a step back, to avoid standing on the boundary wall
-      position->y-=deltaPosition->y;
-      position->x-=deltaPosition->x;
-      }
-      deltaPosition->x=cos(orientation)*speed;
-      deltaPosition->y=sin(orientation)*speed;
+  void updatePosition ();
 
-  }
+   /**
+   * Update the agent position with a given orientation angle after a collision
+   */
+  void updatePosition (float newangle);
+
+
+   /**
+   * Compute the velocity vector from the orientation and speed modulus
+   */
+  void updateVelocityVector();
 
 public:
 
@@ -76,12 +74,17 @@ public:
   float distal_range;
   int id;
   int lifetime;
-  // A pointer to the contingent world
-  //World2DCartesian* world;
+
   // The next position
   Coordinate2D* deltaPosition;
   // The current position
   Coordinate2D* position;
+  // The last velocity vector computed for the collision algorithm
+  VelocityVector2D* velocity;
+  //3 ico controller for every behaviour
+  IcoSiso *icoFood;
+  IcoSiso *icoAgent;
+  IcoSiso *icoObstacle;
 
 
 public:
@@ -89,8 +92,6 @@ public:
 
   // Private attribute accessor methods
   //  
-
-
   /**
    * Set the value of mass
    * @param new_var the new value of mass
@@ -99,12 +100,25 @@ public:
       mass = new_var;
   }
 
+  void stepBack();
+
   /**
    * Get the value of mass
    * @return the value of mass
    */
   float getMass ( )   {
     return mass;
+  }
+
+  float getVx();
+  float getVy();
+
+  /**
+   * Get the value of radius
+   * @return the value of radius
+   */
+  float getRadius ( )   {
+    return diameter/2;
   }
 
   /**

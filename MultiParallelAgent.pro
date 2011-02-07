@@ -6,7 +6,11 @@ SOURCES += Main.cpp \
     Agents/DiskAgent.cpp \
     World/Steppable.cpp \
     World/World2DCartesian.cpp \
-    Entropy/testEntropy.cpp
+    World/velocityvector2d.cpp \
+    World/geometry/RectangularBox.cpp \
+    World/geometry/CircularBox.cpp \
+    Logger/CSVExporter.cpp \
+    World/simparameters.cpp
 HEADERS += LowPassFilter.h \
     Controllers/IcoSiso.h \
     Filters/LowPassFilter.h \
@@ -23,7 +27,13 @@ HEADERS += LowPassFilter.h \
     Entropy/include/AleatoryVariable.h \
     Entropy/include/JointVariable.h \
     Logger/CSVDatabase.h \
-    Entropy/include/Histogram.h
+    Entropy/include/Histogram.h \
+    MatrixUtil/MatrixOperations.h \
+    Logger/CSVExporter.h \
+    World/velocityvector2d.h \
+    World/geometry/RectangularBox.h \
+    World/geometry/CircularBox.h \
+    World/simparameters.h
 LIBS += -fopenmp \
     -lm \
     -lboost_iostreams-mt

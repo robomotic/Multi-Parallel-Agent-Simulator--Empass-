@@ -25,7 +25,7 @@ public:
         string getName() const;
         void addCouple(T symbolX,T symbolY);
         float getSymbolProbability(pair<T,T> couple);
-        inline unsigned int getSequenceLength() const;
+        unsigned int getSequenceLength(){return Nxy;}
         void estimateProbabilities();
         void setNonZeroEvents(int N);
         void resetNextSymbol() ;
@@ -58,6 +58,8 @@ template< class T > JointVariable< T >::JointVariable() {
         //this->Y=new AleatoryVariable<T>();
         this->first = true;
         this->Nxy=0;
+        this->name="XY";
+
 }
 
 template< class T >  JointVariable< T >::~JointVariable() {

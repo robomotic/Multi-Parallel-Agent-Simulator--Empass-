@@ -1,6 +1,20 @@
 #ifndef HISTOGRAM_H
 #define HISTOGRAM_H
 
+#include <iostream>
+#include <sstream>
+using namespace std;
+
+using std::string;
+using std::cerr;
+using std::string;
+using std::ifstream;
+using std::ofstream;
+using std::cout;
+using std::endl;
+using std::streamsize;
+
+
 // A histogram class.
 // The Histogram object can keep a tally of values
 // within a range, the range is arranged into some
